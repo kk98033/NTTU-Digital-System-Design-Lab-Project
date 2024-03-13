@@ -17,7 +17,8 @@ def greetingMessage(message, examples):
     try:
         choseQuestion = examples[int(userInput) - 1]
     except: # not select right target
-        return f'我想要在{examples}選項中選擇：{userInput}'
+        choisesText = ' '.join(examples)
+        return f'請你從"{choisesText}"選項中選擇關於"{userInput}"回答（使用繁體中文）'
     return choseQuestion
 
 
@@ -45,7 +46,6 @@ def submitMessage(assistant_id, thread, user_message):
     client.beta.threads.messages.create(
         thread_id=thread.id, role="user", content=user_message
     )
-    # instructions = "這個Assistant被設定為一位台灣的女性老師，她以充滿活力和熱情的態度教學。在傳授專業知識的同時，她也會用可愛且活潑的語氣與學生互動，讓學習過程充滿樂趣和正能量。她擅長以鼓勵和支持的方式幫助學生克服學習上的挑戰，使學習變得更加輕鬆愉快。她的語言風格既專業又親切，能夠有效激發學生的學習熱情，幫助他們取得更好的學習成果。"
     return client.beta.threads.runs.create(
         thread_id=thread.id,
         assistant_id=assistant_id,
@@ -58,6 +58,7 @@ def waitOnRun(run, thread):
             run_id=run.id,
         )
         time.sleep(0.5)
+        print(run.status)
     return run
 
 assistant = client.beta.assistants.retrieve("asst_bFtLxx6rdpU5oAhbYMBF1pSO")
@@ -70,8 +71,6 @@ while True:
     userInput = input("請輸入你的問題（輸入'退出'來結束對話）: ")
     if userInput.lower() == '退出':
         break
-
-    instructions = "這個Assistant被設定為一位台灣的女性老師，她以充滿活力和熱情的態度教學。在傳授專業知識的同時，她也會用可愛且活潑的語氣與學生互動，讓學習過程充滿樂趣和正能量。她擅長以鼓勵和支持的方式幫助學生克服學習上的挑戰，使學習變得更加輕鬆愉快。她的語言風格既專業又親切，能夠有效激發學生的學習熱情，幫助他們取得更好的學習成果。"
 
     # thread, run = createThreadAndRun(userInput)
     run = submitMessage(ASSISTANT_ID, thread, userInput)
@@ -99,32 +98,3 @@ while True:
         )
         run = waitOnRun(run, thread)
     prettyPrint(getResponse(thread))
-
-# # Extract single tool call
-# tool_call = run.required_action.submit_tool_outputs.tool_calls[0]
-# name = tool_call.function.name
-# arguments = json.loads(tool_call.function.arguments)
-
-# # print("Function Name:", name)
-# # print("Function Arguments:")
-# # print(arguments)
-
-# # get response from python funciton
-# responses = greetingMessage(arguments["message"], arguments["examples"])
-# print("Responses:", responses)
-
-# # submit response back to chatgpt
-# run = client.beta.threads.runs.submit_tool_outputs(
-#     thread_id=thread.id,
-#     run_id=run.id,
-#     tool_outputs=[
-#         {
-#             "tool_call_id": tool_call.id,
-#             "output": responses,
-#         }
-#     ],
-# )
-# # showJson(run)
-
-# run = wait_on_run(run, thread)
-# prettyPrint(get_response(thread))

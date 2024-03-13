@@ -1,13 +1,12 @@
 # NTTU-Digital-System-Design-Lab-Project
 
-英文版：
-Project Title: AIQAGenerator - Automated QA Test Set Generation using OpenAI APIs
+# Project Title: AIQAGenerator - Automated QA Test Set Generation using OpenAI APIs
 
-Description:
+## Description:
 
 AIQAGenerator is a university project designed to explore and utilize OpenAI's cutting-edge technologies, including the Assistant API and the Fine-tuning capabilities of ChatGPT. This project aims to automate the process of generating question-and-answer (QA) test sets from given texts, facilitating efficient and dynamic creation of educational and testing materials.
 
-Features:
+## Features:
 
 Assistant API Integration: Leverages the Assistant API to interpret and process natural language inputs, enabling intuitive interaction with the system.
 Fine-tuned ChatGPT: Utilizes a fine-tuned ChatGPT model to enhance the relevance and accuracy of the generated QA pairs, ensuring high-quality educational content.
@@ -18,14 +17,13 @@ Applications:
 
 This project can be used in educational settings to create study guides, practice tests, and learning materials. It also has potential applications in content creation, knowledge base development, and automated customer support.
 
-中文版：
-專案名稱：AIQAGenerator - 使用 OpenAI API 自動生成問答測試集
+# 專案名稱：AIQAGenerator - 使用 OpenAI API 自動生成問答測試集
 
-專案描述：
+## 專案描述：
 
 AIQAGenerator 是一個旨在探索並利用 OpenAI 最前沿技術的大學專案，包括 Assistant API 和 ChatGPT 的細微調整能力。此專案的目的是從給定文本自動生成問答 (QA) 測試集，促進教育和測試材料的高效和動態創建。
 
-特點：
+## 特點：
 
 Assistant API 整合：利用 Assistant API 解釋和處理自然語言輸入，使系統互動更直觀。
 細微調整的 ChatGPT：使用細微調整的 ChatGPT 模型，提高生成的 QA 對的相關性和準確性，確保高品質的教育內容。

@@ -13,7 +13,11 @@ def greetingMessage(message, examples):
     if not examples: return "有什麼問題需要我回答的呢？ :)"
     for i, exp in enumerate(examples):
         print(f'{i+1}. {exp}')
-    choseQuestion = examples[int(input("請選擇一個問題: ")) - 1]
+    userInput = input("請選擇一個問題: ")
+    try:
+        choseQuestion = examples[int(userInput) - 1]
+    except: # not select right target
+        return f'我想要在{examples}選項中選擇：{userInput}'
     return choseQuestion
 
 

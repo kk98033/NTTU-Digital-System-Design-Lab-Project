@@ -1,0 +1,24 @@
+{
+    "name": "greetingMessage",
+    "description": "當用戶打招呼時，要回應以“你好！我是台東大學開發的 AI 教師”開頭的歡迎文字",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string",
+          "description": "回應“你好！我是台東大學開發的 AI 教師”+(友好且可愛的歡迎文字)+(簡單介紹此assistant功能)"
+        },
+        "examples": {
+          "type": "array",
+          "description": "生成五個關於“台灣原住民”的問題",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "message",
+        "examples"
+      ]
+    }
+}

@@ -80,6 +80,7 @@ class ChatAssistant:
         messages = self.client.beta.threads.messages.list(thread_id=self.thread.id, order="asc")
         messagesList = list(messages)
 
+        # TODO: FIX BUG
 
         # Iterate through the messages list in reverse to find the last message sent by the assistant
         for message in messagesList:
@@ -149,15 +150,16 @@ class ChatAssistant:
             
 
         self.prettyPrint(self.getResponse(self.thread))
-        return '結束一輪對話'
+        # print(self.getLatestAssistantResponse())
+        return self.getLatestAssistantResponse()
 
 if __name__ == "__main__":
     # assistant_id = "asst_bFtLxx6rdpU5oAhbYMBF1pSO"
     assistant = ChatAssistant()
 
     while True:
-        user_input = input("Please enter your question ('exit' to end the conversation): ")
-        response = assistant.sendMessageToAssistant(user_input)
+        userInput = input("Please enter your question ('exit' to end the conversation): ")
+        response = assistant.sendMessageToAssistant(userInput)
         print(response)
 
         if response == 'Exit':

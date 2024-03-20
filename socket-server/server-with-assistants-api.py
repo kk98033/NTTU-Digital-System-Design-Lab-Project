@@ -14,6 +14,8 @@ import UdpComms as U
 import time
 import wave
 from WhisperTranscriber import WhisperTranscriber
+from ChatAssistant import ChatAssistant
+
 
 # Create UDP socket to use for sending (and receiving)
 sock = U.UdpComms(udpIP="127.0.0.1", portTX=8000, portRX=8001, enableRX=True, suppressWarnings=True)
@@ -39,6 +41,13 @@ def getTTS():
 transcriber = WhisperTranscriber('medium')
 print('Model loaded!')
 
+# create an assistant
+assistant = ChatAssistant()
+
+def callAssistantsAPI(userInput):
+    response = assistant.sendMessageToAssistant(userInput)
+    return response
+
 while True:
     data = sock.ReadReceivedData()  # read data
 
@@ -49,16 +58,20 @@ while True:
             print("開始接收音頻數據...")
         elif data == "END_AUDIO":
             is_receiving_audio = False
-            print("音頻數據接收完畢。正在保存檔案...")
 
-            # DEBUG: Save the received audio data to a WAV file
-            save_wav(audio_data, "received_audio.wav")
+            # DEBUG: Save the received audio data to WAV file
+            # print("音頻數據接收完畢。正在保存檔案...")
+            # save_wav(audio_data, "received_audio.wav")
+            # print("檔案保存完畢。")
 
-            print("檔案保存完畢。")
-            # sock.SendData("檔案保存完畢:D")
+            # Get user TTS
             transcription = getTTS()
             print("TTS: ", transcription)
-            sock.SendData(transcription)
+
+            # Send assistant response back to unity
+            assistantResponse = callAssistantsAPI(transcription)
+            sock.SendData(assistantResponse)
+
         elif is_receiving_audio:
             # Ensure data is treated as raw bytes
             audio_data.extend(data)

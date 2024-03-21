@@ -23,10 +23,17 @@ class ChatAssistant:
 
         fullMsg = greetingMsg + "\n"
 
+        # if assistant not giving examples to you(very rare)
         if not examples: 
             return greetingMsg + "有什麼問題需要我回答的呢？ :)"
-        for i, exp in enumerate(examples):
-            fullMsg += f'{i+1}. {exp}\n'
+
+        if "1." in examples[0]:
+            for i, exp in enumerate(examples):
+                fullMsg += f'{exp}\n'
+        else:
+            for i, exp in enumerate(examples):
+                fullMsg += f'{i+1}. {exp}\n'
+            
         return fullMsg
 
     def getGreetingMessageResponse(self, userResponse, examples):

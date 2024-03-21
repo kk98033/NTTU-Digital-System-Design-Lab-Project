@@ -49,12 +49,12 @@ while True:
             print("開始接收音頻數據...")
         elif data == "END_AUDIO":
             is_receiving_audio = False
-            print("音頻數據接收完畢。正在保存檔案...")
 
             # DEBUG: Save the received audio data to a WAV file
+            print("音頻數據接收完畢。正在保存檔案...")
             save_wav(audio_data, "received_audio.wav")
-
             print("檔案保存完畢。")
+
             # sock.SendData("檔案保存完畢:D")
             transcription = getTTS()
             print("TTS: ", transcription)

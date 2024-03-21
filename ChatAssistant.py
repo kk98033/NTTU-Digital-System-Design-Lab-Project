@@ -77,19 +77,26 @@ class ChatAssistant:
 
     def getLatestAssistantResponse(self):
         # Fetch all messages in the thread, sorted in ascending order
-        messages = self.client.beta.threads.messages.list(thread_id=self.thread.id, order="asc")
-        messagesList = list(messages)
+        messages = self.getResponse()
 
-        # TODO: FIX BUG
+        lastAssistantMessage = None
 
-        # Iterate through the messages list in reverse to find the last message sent by the assistant
-        for message in messagesList:
+        for message in messages:
             if message.role == "assistant":
-                return message.content[0].text.value  # Assuming the message content is of type text
-        return None  # Return None if no assistant messages are found
+                lastAssistantMessage = message
 
-    def getResponse(self, thread):
-        return self.client.beta.threads.messages.list(thread_id=thread.id, order="asc")
+        conversations = []
+        for message in messages:
+            conversations.append(f"{message.role}: {message.content[0].text.value}")
+
+        lastResponse = "沒有找到 assistant 的回應哦~ :)"
+        if lastAssistantMessage and lastAssistantMessage.content[0].type == "text":
+            lastResponse = lastAssistantMessage.content[0].text.value
+
+        return lastResponse
+
+    def getResponse(self):
+        return self.client.beta.threads.messages.list(thread_id=self.thread.id, order="asc")
 
     def prettyPrint(self, messages):
         print("# Messages")
@@ -142,15 +149,11 @@ class ChatAssistant:
             self.currentToolCall = None
 
             return self.getLatestAssistantResponse()
-            return self.getPrettyFormat(self.getResponse(self.thread))
         
         else:
             self.waitingForFunctionCallback = False
             self.currentToolCall = None
             
-
-        self.prettyPrint(self.getResponse(self.thread))
-        # print(self.getLatestAssistantResponse())
         return self.getLatestAssistantResponse()
 
 if __name__ == "__main__":

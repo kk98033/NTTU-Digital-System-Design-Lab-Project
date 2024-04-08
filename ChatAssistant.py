@@ -145,7 +145,7 @@ class ChatAssistant:
             # print("examples: ", arguments["examples"])
             # if function needs a response
             # TODO: 可能會有多個funciton的情況
-            self.run = self.answerFunciton(userResponses=self.getGreetingMessageResponse(user_input, arguments["examples"]))
+            self.run = self.answerFunciton(userResponses=self.getGreetingMessageResponse("(請使用繁體中文回答)" + user_input, arguments["examples"]))
             self.run = self.waitOnRun(self.run, self.thread)
 
             # TODO: test

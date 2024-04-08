@@ -60,9 +60,9 @@ while True:
             is_receiving_audio = False
 
             # DEBUG: Save the received audio data to WAV file
-            # print("音頻數據接收完畢。正在保存檔案...")
-            # save_wav(audio_data, "received_audio.wav")
-            # print("檔案保存完畢。")
+            print("音頻數據接收完畢。正在保存檔案...")
+            save_wav(audio_data, "received_audio.wav")
+            print("檔案保存完畢。")
 
             # Get user TTS
             transcription = getTTS()
@@ -70,6 +70,8 @@ while True:
 
             # Send assistant response back to unity
             assistantResponse = callAssistantsAPI(transcription)
+            # Debug
+            print(assistantResponse)
             sock.SendData(assistantResponse)
 
         elif is_receiving_audio:

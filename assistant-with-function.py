@@ -73,7 +73,7 @@ while True:
         break
 
     # thread, run = createThreadAndRun(userInput)
-    run = submitMessage(ASSISTANT_ID, thread, userInput)
+    run = submitMessage(ASSISTANT_ID, thread, "(請使用繁體中文回答)" + userInput)
     run = waitOnRun(run, thread)
     print(f'Run status: {run.status}')
 

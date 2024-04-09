@@ -14,6 +14,7 @@ import UdpComms as U
 import time
 import wave
 from WhisperTranscriber import WhisperTranscriber
+from Denoiser import Denoiser
 
 # Create UDP socket to use for sending (and receiving)
 sock = U.UdpComms(udpIP="127.0.0.1", portTX=8000, portRX=8001, enableRX=True, suppressWarnings=True)
@@ -31,9 +32,9 @@ audio_data = bytearray()  # 用來收集接收到的音頻數據
 
 is_receiving_audio = False
 
-def getTTS():
+def getTTS(voiceUrl="received_audio.wav"):
      # 使用 Whisper 來轉寫這個 WAV 文件
-    transcription = transcriber.transcribe("received_audio.wav")
+    transcription = transcriber.transcribe(voiceUrl)
     return transcription
 
 transcriber = WhisperTranscriber('medium')
@@ -50,13 +51,16 @@ while True:
         elif data == "END_AUDIO":
             is_receiving_audio = False
 
-            # DEBUG: Save the received audio data to a WAV file
+            # Save the received audio data to a WAV file
             print("音頻數據接收完畢。正在保存檔案...")
             save_wav(audio_data, "received_audio.wav")
             print("檔案保存完畢。")
 
+            denoiser = Denoiser()
+            denoiser.process('received_audio.wav', 'received_audio_denoised.wav')
+
             # sock.SendData("檔案保存完畢:D")
-            transcription = getTTS()
+            transcription = getTTS('received_audio_denoised.wav')
             print("TTS: ", transcription)
             sock.SendData(transcription)
         elif is_receiving_audio:

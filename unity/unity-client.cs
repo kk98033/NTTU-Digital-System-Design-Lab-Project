@@ -10,6 +10,9 @@ using UnityEngine;
 
 public class Record2 : MonoBehaviour
 {
+    public TTSManager ttsManager;
+    public LocalTTSAPI ttsAPI;
+
     private AudioClip audioClip;
     private bool isRecording = false;
 
@@ -112,6 +115,19 @@ public class Record2 : MonoBehaviour
                 byte[] data = client.Receive(ref anyIP);
                 string text = Encoding.UTF8.GetString(data);
                 print(">> " + text);
+
+                // Call Local TTS API
+                MainThreadDispatcher.ExecuteInUpdate(() =>
+                {
+                    // Call TTS API
+                    Debug.Log("Calling TTS API With Text: >> " + text);
+                    //if (ttsManager) ttsManager.SynthesizeAndPlay(text, TTSModel.TTS_1, TTSVoice.Shimmer, 1f);
+                    ttsAPI.playTTSAudio(text);
+
+                    //ttsAPI.RequestLocalAPI(text);
+                    Debug.Log("Done");
+                });
+
                 ProcessInput(text);
             }
             catch (Exception err)

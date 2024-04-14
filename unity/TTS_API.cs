@@ -8,10 +8,6 @@ public class TTS_API : MonoBehaviour
 {
     public AudioSource audioSource;
 
-    void Start()
-    {
-    }
-
     public void callTTSandPlay(string text)
     {
         StartCoroutine(StreamAudioFromAPI($"http://127.0.0.1:9880/?text={text}&text_language=zh"));

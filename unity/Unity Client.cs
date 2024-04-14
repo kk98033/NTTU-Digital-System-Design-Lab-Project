@@ -71,19 +71,6 @@ public class UnityClient : MonoBehaviour
         yield return new WaitForSeconds(0.1f);
     }
 
-    public void SendData(string message) // Use to send data to Python
-    {
-        try
-        {
-            byte[] data = Encoding.UTF8.GetBytes(message);
-            client.Send(data, data.Length, remoteEndPoint);
-        }
-        catch (Exception err)
-        {
-            print(err.ToString());
-        }
-    }
-
     void Awake()
     {
         // Create remote endpoint (to Matlab) 
@@ -102,6 +89,21 @@ public class UnityClient : MonoBehaviour
         print("UDP Comms Initialised");
 
         // StartCoroutine(SendDataCoroutine()); // DELETE THIS: Added to show sending data from Unity to Python via UDP
+    }
+
+    //Prevent crashes - close clients and threads properly!
+    void OnDisable()
+    {
+        if (receiveThread != null)
+            receiveThread.Abort();
+
+        client.Close();
+    }
+
+    void Update()
+    {
+        // Handle recording input
+        ProcessRecordingInput();
     }
 
     // Receive data, update packets received
@@ -143,21 +145,6 @@ public class UnityClient : MonoBehaviour
         {
             isTxStarted = true;
         }
-    }
-
-    //Prevent crashes - close clients and threads properly!
-    void OnDisable()
-    {
-        if (receiveThread != null)
-            receiveThread.Abort();
-
-        client.Close();
-    }
-
-    void Update()
-    {
-        // Handle recording input
-        ProcessRecordingInput();
     }
 
     private void ProcessRecordingInput()

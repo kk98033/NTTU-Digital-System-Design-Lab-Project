@@ -1,10 +1,18 @@
 import json
 import time
+from dotenv import load_dotenv
+import os
+
 from openai import OpenAI
 
 class ChatAssistant:
-    def __init__(self):
-        self.client = OpenAI()
+    def __init__(self, api_key):
+        
+
+        if api_key is None:
+            raise Exception("OPENAI_API_KEY 未設定在 .env 文件或環境變量中")
+
+        self.client = OpenAI(api_key=api_key)
         self.assistant = self.client.beta.assistants.retrieve("asst_bFtLxx6rdpU5oAhbYMBF1pSO")
         self.ASSISTANT_ID = "asst_bFtLxx6rdpU5oAhbYMBF1pSO"
         self.thread = self.client.beta.threads.create()
@@ -164,8 +172,13 @@ class ChatAssistant:
         return self.getLatestAssistantResponse()
 
 if __name__ == "__main__":
-    # assistant_id = "asst_bFtLxx6rdpU5oAhbYMBF1pSO"
-    assistant = ChatAssistant()
+    # load .env file
+    load_dotenv()
+
+    # get API key from .env file
+    api_key = os.getenv('OPENAI_API_KEY')
+
+    assistant = ChatAssistant(api_key)
 
     while True:
         userInput = input("Please enter your question ('exit' to end the conversation): ")

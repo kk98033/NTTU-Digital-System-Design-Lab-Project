@@ -15,7 +15,16 @@ import time
 import wave
 from WhisperTranscriber import WhisperTranscriber
 from ChatAssistant import ChatAssistant
+from Denoiser import Denoiser
 
+from dotenv import load_dotenv
+import os
+
+# load .env file
+load_dotenv()
+
+# get API key from .env file
+api_key = os.getenv('OPENAI_API_KEY')
 
 # Create UDP socket to use for sending (and receiving)
 sock = U.UdpComms(udpIP="127.0.0.1", portTX=8000, portRX=8001, enableRX=True, suppressWarnings=True)
@@ -33,21 +42,24 @@ audio_data = bytearray()  # 用來收集接收到的音頻數據
 
 is_receiving_audio = False
 
-def getTTS():
+def getTTS(voiceUrl="received_audio.wav"):
      # 使用 Whisper 來轉寫這個 WAV 文件
-    transcription = transcriber.transcribe("received_audio.wav")
+    transcription = transcriber.transcribe(voiceUrl)
     return transcription
 
+print("Loading Whisper model...")
 transcriber = WhisperTranscriber('medium')
 print('Model loaded!')
 
 # create an assistant
-assistant = ChatAssistant()
+assistant = ChatAssistant(api_key)
+print("Assistant loaded!")
 
 def callAssistantsAPI(userInput):
     response = assistant.sendMessageToAssistant(userInput)
     return response
 
+print("開始接收音訊!")
 while True:
     data = sock.ReadReceivedData()  # read data
 
@@ -64,8 +76,11 @@ while True:
             save_wav(audio_data, "received_audio.wav")
             print("檔案保存完畢。")
 
+            denoiser = Denoiser()
+            denoiser.process('received_audio.wav', 'received_audio_denoised.wav')
+
             # Get user TTS
-            transcription = getTTS()
+            transcription = getTTS(voiceUrl='./received_audio_denoised.wav')
             print("TTS: ", transcription)
 
             # Send assistant response back to unity

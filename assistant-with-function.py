@@ -5,7 +5,19 @@ Reference: https://cookbook.openai.com/examples/assistants_api_overview_python
 from openai import OpenAI
 import json, time
 
-client = OpenAI()
+from dotenv import load_dotenv
+import os
+
+# load .env file
+load_dotenv()
+
+# get API key from .env file
+api_key = os.getenv('OPENAI_API_KEY')
+
+if api_key is None:
+    raise Exception("OPENAI_API_KEY 未設定在 .env 文件或環境變量中")
+
+client = OpenAI(api_key=api_key)
 
 ''' json in json/greetingMessage.json '''
 def greetingMessage(message, examples):

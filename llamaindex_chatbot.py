@@ -25,24 +25,6 @@ from llama_index.core import (
     load_index_from_storage,
 )
 
-# from llama_index.readers.file import UnstructuredReader
-# from pathlib import Path
-
-# years = [2022, 2021, 2020, 2019]
-
-# loader = UnstructuredReader()
-# doc_set = {}
-# all_docs = []
-# for year in years:
-#     year_docs = loader.load_data(
-#         file=Path(f"./test-data/UBER/UBER_{year}.html"), split_documents=False
-#     )
-#     # insert year metadata into each year
-#     for d in year_docs:
-#         d.metadata = {"year": year}
-#     doc_set[year] = year_docs
-#     all_docs.extend(year_docs)
-
 # initialize simple vector indices
 # NOTE: don't run this cell if the indices are already loaded!
 from llama_index.core import VectorStoreIndex, StorageContext
@@ -54,16 +36,6 @@ Settings.chunk_size = 512
 Settings.chunk_overlap = 64
 Settings.llm = OpenAI(model="gpt-3.5-turbo")
 Settings.embed_model = OpenAIEmbedding(model="text-embedding-3-small")
-
-# index_set = {}
-# for year in years:
-#     storage_context = StorageContext.from_defaults()
-#     cur_index = VectorStoreIndex.from_documents(
-#         doc_set[year],
-#         storage_context=storage_context,
-#     )
-#     index_set[year] = cur_index
-#     storage_context.persist(persist_dir=f"./storage/{year}")
 
 # Load indices from disk
 from llama_index.core import load_index_from_storage
@@ -106,15 +78,6 @@ for year in years:
             StorageContext.from_defaults(persist_dir=path),
         )
         index_set[year] = cur_index
-
-# for year in years:
-#     storage_context = StorageContext.from_defaults(
-#         persist_dir=f"./storage/{year}"
-#     )
-#     cur_index = load_index_from_storage(
-#         storage_context,
-#     )
-#     index_set[year] = cur_index
 
 from llama_index.core.tools import QueryEngineTool, ToolMetadata
 

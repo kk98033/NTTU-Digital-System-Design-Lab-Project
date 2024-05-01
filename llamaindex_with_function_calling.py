@@ -57,6 +57,8 @@ llm = OpenAI(model="gpt-3.5-turbo-instruct")
 agent = ReActAgent.from_tools([multiply_tool, add_tool, fetch_current_weather_tool, greetings_tool], llm=llm, verbose=True)
 # agent = ReActAgent.from_tools([multiply_tool, add_tool, fetch_current_weather_tool], llm=llm, verbose=True)
 
+response = agent.chat("你好")
+
 response = agent.chat("What is 20+(2*4)? Calculate step by step ")
 
 response_gen = agent.stream_chat("What is 20+2*4? Calculate step by step")

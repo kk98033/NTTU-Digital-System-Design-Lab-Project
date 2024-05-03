@@ -34,74 +34,8 @@ from llama_index.core import Settings
 from llama_index.llms.ollama import Ollama
 from llama_index.embeddings.ollama import OllamaEmbedding
 
-# Settings.chunk_size = 512
-# Settings.chunk_overlap = 64
-# Settings.llm = Ollama(model="llama3", request_timeout=60.0)
-# Settings.embed_model = ollama_embedding = OllamaEmbedding(
-#     model_name="llama3",
-#     base_url="http://localhost:11434",
-#     ollama_additional_kwargs={"mirostat": 0},
-# )
-
-
 # Load indices from disk
 from llama_index.core import load_index_from_storage
-
-# from llama_index.readers.file import UnstructuredReader
-# from pathlib import Path
-
-# # years = [2022, 2021, 2020, 2019]
-# years = [2022]
-
-# loader = UnstructuredReader()
-# doc_set = {}
-# all_docs = []
-
-# index_set = {}
-# for year in years:
-#     path = f"./storage/{year}"
-#     if not os.path.exists(path):
-#         print(f"./storage/{year} does not exist, creating a new one...")
-
-#         print(f'loading: {year}')
-#         year_docs = loader.load_data(
-#             file=Path(f"./test-data/UBER/UBER_{year}.html"), split_documents=False
-#         )
-#         # insert year metadata into each year
-#         for d in year_docs:
-#             d.metadata = {"year": year}
-#         doc_set[year] = year_docs
-#         all_docs.extend(year_docs)
-
-#         storage_context = StorageContext.from_defaults()
-#         cur_index = VectorStoreIndex.from_documents(
-#             doc_set[year],
-#             storage_context=storage_context,
-#         )
-#         index_set[year] = cur_index
-#         storage_context.persist(persist_dir=f"./storage/{year}")
-#     else:
-#         print(f"loading '{path}' data from storage...")
-#         cur_index = load_index_from_storage(
-#             StorageContext.from_defaults(persist_dir=path),
-#         )
-#         index_set[year] = cur_index
-
-# from llama_index.core.tools import QueryEngineTool, ToolMetadata
-
-# individual_query_engine_tools = [
-#     QueryEngineTool(
-#         query_engine=index_set[year].as_query_engine(),
-#         metadata=ToolMetadata(
-#             name=f"vector_index_{year}",
-#             description=(
-#                 "useful for when you want to answer queries about the"
-#                 f" {year} SEC 10-K for Uber"
-#             ),
-#         ),
-#     )
-#     for year in years
-# ]
 
 from llama_index.core import (
    SimpleDirectoryReader,
@@ -160,21 +94,6 @@ citation_query_engine_tools = [
        ),
    ),
 ]
-
-
-# individual_query_engine_tools = [
-#     QueryEngineTool(
-#         query_engine=index_set[year].as_query_engine(),
-#         metadata=ToolMetadata(
-#             name=f"vector_index_{year}",
-#             description=(
-#                 "useful for when you want to answer queries about the"
-#                 f" {year} SEC 10-K for Uber"
-#             ),
-#         ),
-#     )
-#     for year in years
-# ]
 
 from llama_index.core.query_engine import SubQuestionQueryEngine
 

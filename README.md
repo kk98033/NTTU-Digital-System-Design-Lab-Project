@@ -1,4 +1,5 @@
-# NTTU-Digital-System-Design-Lab-Project
+# NTTU-Digital-System-Design-Lab-Project Backup
 
-台東大學 SEC304 (忘記叫甚麼實驗室了QQ) 專題。
-以下為空，有空再寫 >.<
+國立臺東大學 SEC304 實驗室 程式碼備份區。
+
+雜七雜八的程式碼，到時候專題成果會再另開一個地方儲存 ><

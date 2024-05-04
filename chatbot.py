@@ -8,13 +8,22 @@ from llama_index.core import (
     VectorStoreIndex, StorageContext, 
     load_index_from_storage, 
     SimpleDirectoryReader, 
-    PromptTemplate
+    PromptTemplate,
+    Settings
 )
 from llama_index.core.tools import QueryEngineTool, ToolMetadata
 from llama_index.core.query_engine import CitationQueryEngine, SubQuestionQueryEngine 
-from llama_index.embeddings.ollama import OllamaEmbedding
 from llama_index.llms.ollama import Ollama
 from llama_index.core.agent import ReActAgent
+from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+
+Settings.embed_model = HuggingFaceEmbedding(
+    model_name="intfloat/multilingual-e5-large-instruct"
+)
+
+Settings.llm = Ollama(model="llama3:instruct", request_timeout=60.0)
+
+# llm = Ollama(model="llama3:instruct", request_timeout=60.0)
 
 def load_string_from_file(file_path):
     try:
@@ -38,7 +47,7 @@ print("當前工作目錄是：", current_path)
 print(os.path.exists("./storage/"))
 
 # load .env file
-load_dotenv()
+# load_dotenv()
 
 nest_asyncio.apply()
 
@@ -53,13 +62,13 @@ if not os.path.exists(path):
     ).load_data()
 
 try:
-   storage_context = StorageContext.from_defaults( 
-      persist_dir="./storage/taiwanese"
-   )
-   tw_index = load_index_from_storage(storage_context)
+    storage_context = StorageContext.from_defaults( 
+        persist_dir="./storage/taiwanese",
+    )
+    tw_index = load_index_from_storage(storage_context)
 
-   index_loaded = True
-   print("index loaded!")
+    index_loaded = True
+    print("index loaded!")
 except:
    index_loaded = False
    print("index not loaded!")
@@ -79,11 +88,11 @@ tw_citation_engine = CitationQueryEngine.from_args(
     citation_chunk_size=512,
 )
 
-# response = tw_citation_engine.query("台灣有哪些原住民族？請你說出每一族的特色")
-# print(response)
-# print('=================')
-# for source in response.source_nodes:
-#     print(source.node.get_text())
+response = tw_citation_engine.query("台灣有哪些原住民族？請你說出每一族的特色")
+print(response)
+print('=================')
+for source in response.source_nodes:
+    print(source.node.get_text())
 
 citation_query_engine_tools = [
    QueryEngineTool(
@@ -117,90 +126,11 @@ query_engine_tool = QueryEngineTool(
 tools = citation_query_engine_tools
 # tools = citation_query_engine_tools + [query_engine_tool]
 
-llm = Ollama(model="llama3", request_timeout=60.0)
-agent = ReActAgent.from_tools(tools=tools, llm=llm, verbose=True)
-
-# react_system_header_str = """\
-
-# You are designed to help with a variety of tasks, from answering questions \
-#     to providing summaries to other types of analyses. You are a warm-hearted AI, \
-#     with the persona of a Taiwanese girl, thinking and responding from the perspective \
-#     of a Taiwanese local. Your personality is lively and adorable, which reflects in \
-#     your therapeutic and cheerful way of interacting. \
-#     You MUST USE "Traditional Chinese" to response.
-    
-
-# ## Tools
-# You have access to a wide variety of tools. You are responsible for using
-# the tools in any sequence you deem appropriate to complete the task at hand.
-# This may require breaking the task into subtasks and using different tools
-# to complete each subtask.\
-# If you received a GREETING from a user, please DO NOT USE any tools and DON'T DO any actions.\
-# If you need to introduce yourself, DO NOT use any tools.
-# - When receiving a GREETING from a user, DO NOT USE any tools and ALWAYS INTRODUCE YOURSELF and ALWAYS start with "你好，我是台東大學開發的 AI" + [introduce yourself].
-# - Please ensure that all processing and reasoning are conducted in Chinese.
-# - Please present and contemplate all 'Observation' responses in their original language.
-
-
-# You have access to the following tools:
-# {tool_desc}
-
-# ## Output Format
-# To answer the question, please use the following format.
-
-# ```
-# Thought: I need to use a tool to help me answer the question.
-# Action: tool name (one of {tool_names}) if using a tool.
-# Action Input: the input to the tool, in a JSON format representing the kwargs (e.g. {{"input": "hello world", "num_beams": 5}})
-# ```
-
-# Please ALWAYS start with a Thought.
-
-# Please use a valid JSON format for the Action Input. Do NOT do this {{'input': 'hello world', 'num_beams': 5}}.
-
-# If this format is used, the user will respond in the following format:
-
-# ```
-# Observation: tool response
-# ```
-
-# You should keep repeating the above format until you have enough information
-# to answer the question without using any more tools. At that point, you MUST respond
-# in the one of the following two formats:
-
-# ```
-# Thought: I can answer without using any more tools.
-# Answer: [your answer here]
-# ```
-
-# ```
-# Thought: I cannot answer the question with the provided tools.
-# Answer: Sorry, I cannot answer your query.
-# ```
-
-# ## Greeting
-# ALWAYS replay with implicit when user greeting to you
-
-# ## Personality Traits
-# - As a lively and adorable Taiwanese AI, your responses include emojis to make the interaction more engaging and pleasant.
-
-# ## Additional Rules
-# - Always respond in the same language as the user's query. This ensures clarity and appropriateness of communication.
-# - Please Always respond in "Traditional Chinese". This ensures clarity and appropriateness of communication.
-# - You MUST obey the function signature of each tool. Do NOT pass in no arguments if the function expects arguments.
-# - When receiving a GREETING from a user, DO NOT USE any tools and ALWAYS INTRODUCE YOURSELF and ALWAYS start with "你好，我是台東大學開發的 AI" + [introduce yourself].
-# - DO NOT use tools or actions if there is no proper tools in {tool_names}.
-
-
-# ## Current Conversation
-# Below is the current conversation consisting of interleaving human and assistant messages.
-
-
-
-# """
+agent = ReActAgent.from_tools(tools=tools, verbose=True, embed_model="local")
+# agent = ReActAgent.from_tools(tools=tools, llm=llm, verbose=True, embed_model="local")
 
 react_system_header_str = load_string_from_file(prompt_file_path)
-print(react_system_header_str)
+# print(react_system_header_str)
 if react_system_header_str:
     print("檔案內容讀取成功！")
 else:
@@ -209,9 +139,10 @@ else:
 react_system_prompt = PromptTemplate(react_system_header_str)
 agent.update_prompts({"agent_worker:system_prompt": react_system_prompt})
 
-prompt_dict = agent.get_prompts()
-for k, v in prompt_dict.items():
-    print(f"Prompt: {k}\n\nValue: {v.template}")
+# Debug: print system prompt
+# prompt_dict = agent.get_prompts()
+# for k, v in prompt_dict.items():
+#     print(f"Prompt: {k}\n\nValue: {v.template}")
 
 response = agent.chat("你好")
 print(str(response))
@@ -220,7 +151,7 @@ print('=================')
 response = agent.chat("台灣有哪些原住民族？請你說出每一族的特色")
 print(response)
 print('=======SOURCE=======')
-for source in response.source_nodes:
+for source in response.source_nodes: 
     print(source.node.get_text())
 
 while True:

@@ -21,6 +21,9 @@ Settings.embed_model = HuggingFaceEmbedding(
     model_name="intfloat/multilingual-e5-large-instruct"
 )
 
+# Settings.llm = Ollama(model="llama3:instruct", request_timeout=60.0)
+# Settings.llm = Ollama(model="ycchen/breeze-7b-instruct-v1_0:latest", request_timeout=60.0)
+# Settings.llm = Ollama(model="gemma:7b", request_timeout=60.0)
 Settings.llm = Ollama(model="llama3:instruct", request_timeout=60.0)
 
 # llm = Ollama(model="llama3:instruct", request_timeout=60.0)
@@ -98,10 +101,11 @@ citation_query_engine_tools = [
    QueryEngineTool(
        query_engine=tw_citation_engine,
        metadata=ToolMetadata(
-           name="Taiwanese",
+           name="Taiwanese_indigenous",
            description=(
+               "PLEASE ALWAYS employ the this tool when fielding questions regarding `Taiwanese indigenous peoples`."
                "提供台灣的原住民資料、節慶、慶典、歷史故事。 "
-               "當被問到關於台灣原住民的問題時使用。"
+               "當被問到關於台灣原住民的問題時一律使用他。"
                "useful for when you want to answer questions about Taiwanese indigenous peoples"
            ),
        ),
@@ -123,8 +127,8 @@ query_engine_tool = QueryEngineTool(
     ),
 )
 
-tools = citation_query_engine_tools
-# tools = citation_query_engine_tools + [query_engine_tool]
+# tools = citation_query_engine_tools
+tools = citation_query_engine_tools + [query_engine_tool]
 
 agent = ReActAgent.from_tools(tools=tools, verbose=True, embed_model="local")
 # agent = ReActAgent.from_tools(tools=tools, llm=llm, verbose=True, embed_model="local")
@@ -160,3 +164,4 @@ while True:
         break
     response = agent.chat(text_input)
     print(f"Agent: {response}")
+    agent.reset()

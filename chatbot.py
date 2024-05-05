@@ -11,7 +11,7 @@ from llama_index.core import (
     PromptTemplate,
     Settings
 )
-from llama_index.core.tools import QueryEngineTool, ToolMetadata
+from llama_index.core.tools import QueryEngineTool, ToolMetadata, FunctionTool
 from llama_index.core.query_engine import CitationQueryEngine, SubQuestionQueryEngine 
 from llama_index.llms.ollama import Ollama
 from llama_index.core.agent import ReActAgent
@@ -39,9 +39,10 @@ def load_string_from_file(file_path):
         print("讀取檔案時發生錯誤：", e)
         return None
 
-prompt_file_path = 'NTTU-Digital-System-Design-Lab-Project\\react_system_header_str.txt'
+# prompt_file_path = 'NTTU-Digital-System-Design-Lab-Project\\react_system_header_str.txt'
+prompt_file_path = 'NTTU-Digital-System-Design-Lab-Project\\react_system_header_str_CN.txt'
 
-file_path = 'NTTU-Digital-System-Design-Lab-Project\\react_system_header_str.txt'
+# file_path = 'NTTU-Digital-System-Design-Lab-Project\\react_system_header_str.txt'
 
 nltk.download('averaged_perceptron_tagger')
 
@@ -119,16 +120,39 @@ query_engine = SubQuestionQueryEngine.from_defaults(
 query_engine_tool = QueryEngineTool(
     query_engine=query_engine,
     metadata=ToolMetadata(
-        name="sub_question_query_engine",
+        name="Taiwanese_indigenous_sub_question_query_engine",
         description=(
-            "useful for when you want to answer queries that require analyzing"
-            "about Taiwanese indigenous peoples"
+            "PLEASE ALWAYS employ the this tool when fielding questions regarding `Taiwanese indigenous peoples`."
+            "提供台灣的原住民資料、節慶、慶典、歷史故事。 "
+            "當被問到關於台灣原住民的問題時一律使用他。"
+            "useful for when you want to answer questions about Taiwanese indigenous peoples"
         ),
     ),
 )
 
+def show_RAG_sources() -> int:
+    """
+        用來輸出參考資料的來源。
+        如果用戶向你索取資料，請使用他。
+        請你將 `sources` 完整的輸出給用 戶。
+    """
+    print('=======SOURCE=======')
+    for source in response.source_nodes:
+        print(source.node.get_text())
+        print()
+    print('=======END-SOURCE=======')
+
+    try:
+        sources = [ source.node.get_text() for source in response.source_nodes]
+    except:
+        return "目前沒有來源"
+    # return sources
+    return "所有的資料來源皆已經輸出!"
+
+show_RAG_sources_tool = FunctionTool.from_defaults(fn=show_RAG_sources)
+
 # tools = citation_query_engine_tools
-tools = citation_query_engine_tools + [query_engine_tool]
+tools = citation_query_engine_tools + [query_engine_tool, show_RAG_sources_tool]
 
 agent = ReActAgent.from_tools(tools=tools, verbose=True, embed_model="local")
 # agent = ReActAgent.from_tools(tools=tools, llm=llm, verbose=True, embed_model="local")
@@ -164,4 +188,4 @@ while True:
         break
     response = agent.chat(text_input)
     print(f"Agent: {response}")
-    agent.reset()
+    # agent.reset()

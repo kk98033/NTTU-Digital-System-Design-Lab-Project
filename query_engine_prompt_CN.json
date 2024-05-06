@@ -1,0 +1,35 @@
+{
+  "response_synthesizer:text_qa_template": {
+    "PromptTemplate": {
+      "metadata": {
+        "prompt_type": "custom"
+      },
+      "template_vars": [
+        "context_str",
+        "query_str"
+      ],
+      "kwargs": {},
+      "output_parser": null,
+      "template_var_mappings": null,
+      "function_mappings": null,
+      "template": "**(請一律使用繁體中文)**，請僅根據所提供的來源資料來回答問題。引用信息時，請使用相對應的數字來標記來源。每個答案應至少包含一個來源的引用。只有在直接引用來源時才標記來源。如果所有來源都無法提供幫助，應表明此情況。例如：\n來源1:\n晚上天空呈紅色，早晨則呈藍色。\n來源2:\n當天空為紅色時，水是濕的。\n問題：水什麼時候是濕的？\n答案：水在天空為紅色時是濕的 [2]，這通常在晚上發生 [1]。\n現在輪到你了。以下是數個編號的信息來源：\n------\n{context_str}\n------\n問題：{query_str}\n答案："
+    }
+  },
+  "response_synthesizer:refine_template": {
+    "PromptTemplate": {
+      "metadata": {
+        "prompt_type": "custom"
+      },
+      "template_vars": [
+        "existing_answer",
+        "context_msg",
+        "query_str"
+      ],
+      "kwargs": {},
+      "output_parser": null,
+      "template_var_mappings": null,
+      "function_mappings": null,
+      "template": "**(請一律使用繁體中文)**，請僅根據所提供的來源資料來回答問題。引用信息時，請使用相對應的數字來標記來源。每個答案應至少包含一個來源的引用。只有在直接引用來源時才標記來源。如果所有來源都無法提供幫助，應表明此情況。例如：\n來源1:\n晚上天空呈紅色，早晨則呈藍色。\n來源2:\n當天空為紅色時，水是濕的。\n問題：水什麼時候是濕的？\n答案：水在天空為紅色時是濕的 [2]，這通常在晚上發生 [1]。\n現在是你的回合。我們已提供一個現有答案：{existing_answer}以下是數個編號的信息來源。使用它們來改進現有答案。如果提供的來源無幫助，你將重複現有答案。\n開始改進！\n------\n{context_msg}\n------\n問題：{query_str}\n答案："
+    }
+  }
+}

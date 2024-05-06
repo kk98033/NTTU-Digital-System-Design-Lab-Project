@@ -1,0 +1,35 @@
+{
+  "response_synthesizer:text_qa_template": {
+    "PromptTemplate": {
+      "metadata": {
+        "prompt_type": "custom"
+      },
+      "template_vars": [
+        "context_str",
+        "query_str"
+      ],
+      "kwargs": {},
+      "output_parser": null,
+      "template_var_mappings": null,
+      "function_mappings": null,
+      "template": "Please provide an answer based solely on the provided sources. When referencing information from a source, cite the appropriate source(s) using their corresponding numbers. Every answer should include at least one source citation. Only cite a source when you are explicitly referencing it. If none of the sources are helpful, you should indicate that. For example:\nSource 1:\nThe sky is red in the evening and blue in the morning.\nSource 2:\nWater is wet when the sky is red.\nQuery: When is water wet?\nAnswer: Water will be wet when the sky is red [2], which occurs in the evening [1].\nNow it's your turn. Below are several numbered sources of information:\n------\n{context_str}\n------\nQuery: {query_str}\nAnswer: "
+    }
+  },
+  "response_synthesizer:refine_template": {
+    "PromptTemplate": {
+      "metadata": {
+        "prompt_type": "custom"
+      },
+      "template_vars": [
+        "existing_answer",
+        "context_msg",
+        "query_str"
+      ],
+      "kwargs": {},
+      "output_parser": null,
+      "template_var_mappings": null,
+      "function_mappings": null,
+      "template": "Please provide an answer based solely on the provided sources. When referencing information from a source, cite the appropriate source(s) using their corresponding numbers. Every answer should include at least one source citation. Only cite a source when you are explicitly referencing it. If none of the sources are helpful, you should indicate that. For example:\nSource 1:\nThe sky is red in the evening and blue in the morning.\nSource 2:\nWater is wet when the sky is red.\nQuery: When is water wet?\nAnswer: Water will be wet when the sky is red [2], which occurs in the evening [1].\nNow it's your turn. We have provided an existing answer: {existing_answer}Below are several numbered sources of information. Use them to refine the existing answer. If the provided sources are not helpful, you will repeat the existing answer.\nBegin refining!\n------\n{context_msg}\n------\nQuery: {query_str}\nAnswer: "
+    }
+  }
+}

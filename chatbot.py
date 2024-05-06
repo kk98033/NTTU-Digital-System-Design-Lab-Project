@@ -1,4 +1,5 @@
 import os
+import json
 
 from dotenv import load_dotenv
 import nltk
@@ -92,6 +93,31 @@ tw_citation_engine = CitationQueryEngine.from_args(
     citation_chunk_size=512,
 )
 
+
+# citation query engine custom prompt
+with open("NTTU-Digital-System-Design-Lab-Project/query_engine_prompt_CN.json", "r", encoding="utf-8") as file:
+    prompts_dict = json.load(file)
+
+custom_qa_prompt_data = prompts_dict.get("response_synthesizer:text_qa_template")
+custom_qa_prompt_str = custom_qa_prompt_data['PromptTemplate']['template'] if 'PromptTemplate' in custom_qa_prompt_data else ""
+
+custom_refine_prompt_data = prompts_dict.get("response_synthesizer:refine_template")
+custom_refine_prompt_str = custom_refine_prompt_data['PromptTemplate']['template'] if 'PromptTemplate' in custom_refine_prompt_data else ""
+
+custom_qa_prompt_template = PromptTemplate(custom_qa_prompt_str)
+custom_refine_prompt_template = PromptTemplate(custom_refine_prompt_str)
+
+tw_citation_engine.update_prompts(
+    {
+        "response_synthesizer:text_qa_template": custom_qa_prompt_template,
+        "response_synthesizer:refine_template": custom_refine_prompt_template
+    }
+)
+
+# DEBUG
+prompts_dict = tw_citation_engine.get_prompts()
+print(prompts_dict)
+
 response = tw_citation_engine.query("台灣有哪些原住民族？請你說出每一族的特色")
 print(response)
 print('=================')
@@ -129,6 +155,7 @@ query_engine_tool = QueryEngineTool(
         ),
     ),
 )
+
 
 def show_RAG_sources() -> int:
     """

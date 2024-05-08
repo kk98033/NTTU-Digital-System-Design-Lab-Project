@@ -23,10 +23,11 @@ Settings.embed_model = HuggingFaceEmbedding(
 )
 
 # Settings.llm = Ollama(model="llama3:instruct", request_timeout=60.0)
-Settings.llm = Ollama(model="ycchen/breeze-7b-instruct-v1_0:latest", request_timeout=60.0)
+# Settings.llm = Ollama(model="ycchen/breeze-7b-instruct-v1_0:latest", request_timeout=60.0)
+# Settings.llm = Ollama(model="cwchang/llama3-taide-lx-8b-chat-alpha1", request_timeout=60.0)
 # Settings.llm = Ollama(model="wangrongsheng/taiwanllm-7b-v2.1-chat", request_timeout=60.0)
 # Settings.llm = Ollama(model="gemma:7b", request_timeout=60.0)
-# Settings.llm = Ollama(model="llama3:instruct", request_timeout=60.0)
+Settings.llm = Ollama(model="llama3:instruct", request_timeout=60.0)
 # Settings.llm = Ollama(model="gemma:2b-instruct", request_timeout=60.0)
 
 # 
@@ -166,9 +167,10 @@ query_engine_tool = QueryEngineTool(
 
 def show_RAG_sources() -> int:
     """
+        ** 此函式不接受任何輸入參數。 **
         用來輸出參考資料的來源。
-        如果用戶向你索取資料，請使用他。
-        請你將 `sources` 完整的輸出給用 戶。
+        ** 取得資料來源，請使用他。 **
+        請你將 `sources` 完整的輸出給用戶。
     """
     print('=======SOURCE=======')
     for source in response.source_nodes:
@@ -216,6 +218,10 @@ print(response)
 # print('=======SOURCE=======')
 # for source in response.source_nodes: 
 #     print(source.node.get_text())
+
+print('=================')
+response = agent.chat("甚麼樣的世界地標位於美國紐約的自由島島上")
+print(response)
 
 while True:
     text_input = input("User: ")

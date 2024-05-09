@@ -30,7 +30,7 @@ st.title('NTTU 原住民老師')
 user_input = st.text_input("Please enter your message:", key="user_input")
 
 # Add sidebar with image and text
-st.sidebar.image("temp.jpg", use_column_width=True) 
+st.sidebar.image("llama_logo.png", use_column_width=True) 
 st.sidebar.write("NTTU 原住民老師")
 
 

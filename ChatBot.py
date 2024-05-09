@@ -24,6 +24,7 @@ class ChatBot:
         self.load_dotenv_file()
         self.prepare_environment()
         self.agent = self.configure_agent()
+        self.response = None
 
     def setup_settings(self):
         Settings.embed_model = HuggingFaceEmbedding(model_name="intfloat/multilingual-e5-large-instruct")
@@ -121,12 +122,13 @@ class ChatBot:
                 print(source.node.get_text())
             print('=======END-SOURCE=======')
         except:
-            return "告訴用戶:發生了錯誤!"
+            return "[告訴用戶:發生了錯誤!]"
         # return sources
-        return "告訴用戶:所有的資料來源皆已經輸出!"
+        return "[告訴用戶:所有的資料來源皆已經輸出!]"
 
     def chat(self, input_text):
-        return self.agent.chat(input_text)
+        self.response = self.agent.chat(input_text)
+        return self.response
 
 
 if __name__ == "__main__":

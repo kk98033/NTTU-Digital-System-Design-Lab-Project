@@ -29,6 +29,7 @@ class ChatBot:
     def setup_settings(self):
         Settings.embed_model = HuggingFaceEmbedding(model_name="intfloat/multilingual-e5-large-instruct")
         Settings.llm = Ollama(model="llama3:instruct", request_timeout=60.0)
+        # Settings.llm = Ollama(model="ycchen/breeze-7b-instruct-v1_0:latest", request_timeout=60.0)
 
     def load_dotenv_file(self):
         load_dotenv()
@@ -49,9 +50,19 @@ class ChatBot:
                 input_files=["./原住民資料.pdf", "./原住民資料2.pdf"]
             ).load_data()
 
+        nttu_path = "./storage/nttu"
+        if not os.path.exists(nttu_path):
+            nttu_docs = SimpleDirectoryReader(
+                input_files=["./台東大學介紹.pdf"]
+            ).load_data()
+
         try:
             storage_context = StorageContext.from_defaults(persist_dir=path)
             tw_index = load_index_from_storage(storage_context)
+
+            nttu_storage_context = StorageContext.from_defaults(persist_dir=nttu_path)
+            nttu_index = load_index_from_storage(nttu_storage_context)
+
             index_loaded = True
             print("Index loaded!")
         except:
@@ -62,9 +73,17 @@ class ChatBot:
                 tw_index.storage_context.persist(persist_dir=path)
                 index_loaded = True
 
+            if nttu_docs:
+                nttu_index = VectorStoreIndex.from_documents(nttu_docs)
+                nttu_index.storage_context.persist(persist_dir=nttu_path)
+                index_loaded = True
+
         if index_loaded:
             tw_citation_engine = CitationQueryEngine.from_args(
                 tw_index, similarity_top_k=3, citation_chunk_size=512)
+            
+            nttu_citation_engine = CitationQueryEngine.from_args(
+                nttu_index, similarity_top_k=3, citation_chunk_size=512)
 
             # Load custom prompts for citation engine
             with open("NTTU-Digital-System-Design-Lab-Project/query_engine_prompt_CN.json", "r", encoding="utf-8") as file:
@@ -86,9 +105,17 @@ class ChatBot:
                 )
             )
 
+            nttu_citation_tool = QueryEngineTool(
+                query_engine=nttu_citation_engine,
+                metadata=ToolMetadata(
+                    name="NTTU_tool",
+                    description="用於回答有關'台東大學', '東大','nttu'的問題。"
+                )
+            )
+
             show_RAG_sources_tool = FunctionTool.from_defaults(fn=self.show_RAG_sources)
 
-            tools = [citation_tool, show_RAG_sources_tool]
+            tools = [nttu_citation_tool, citation_tool, show_RAG_sources_tool]
             agent = ReActAgent.from_tools(tools=tools, verbose=True, embed_model="local")
 
             # Load system prompts from file

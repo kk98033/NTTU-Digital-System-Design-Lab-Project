@@ -1,0 +1,56 @@
+import re
+import requests
+from bs4 import BeautifulSoup
+
+def crawl_webpage(url):
+    # 發送 GET 請求並獲取響應
+    response = requests.get(url)
+    
+    # 檢查請求是否成功
+    if response.status_code == 200:
+        # 使用 BeautifulSoup 解析 HTML 內容
+        soup = BeautifulSoup(response.content, 'html.parser')
+        
+        # 找到網頁的主要內容區域
+        main_content = soup.find("div", class_="main-content")  # 假設主要內容區域的 class 是 "main-content"，請替換成實際的 class 名稱
+        
+        # 如果找不到主要內容區域，則使用整個網頁內容
+        if not main_content:
+            main_content = soup
+        
+        # 排除特定元素或類別
+        for elem in main_content.find_all(["nav", "footer", "sidebar","script","noscript"]):  # 假設您想排除的元素是 <nav>、<footer> 和側邊欄，請替換成您需要排除的元素
+            elem.extract()
+       # 排除任何包含 "nav" 或 "banner" 的 class 名稱
+        pattern = re.compile(r'\b(nav|banner|menu)\b')  # 匹配單獨的 "nav" 或 "banner" 字詞
+        for elem in main_content.find_all(class_=pattern):
+            elem.extract()
+        
+        # # 找到所有的標籤
+        # all_tags = soup.find_all()
+        
+        # # 提取每個標籤的文字內容
+        # text_content = ""
+        # for tag in all_tags:
+        #     text_content += tag.get_text() + "\n"
+        
+        # 使用 get_text() 方法獲取所有文字內容，並使用 strip() 方法去除頭尾空白，再使用 splitlines() 方法分割成行
+        lines = main_content.get_text().strip().splitlines()
+        
+        # 重新組合成一個沒有空白行的文字內容
+        text_content = '\n'.join(line for line in lines if line.strip())
+        
+        # 返回獲取到的文字內容
+        return text_content
+    else:
+        print("Failed to fetch webpage")
+        return None
+
+# 使用示例
+url = "https://zhuanlan.zhihu.com/p/651272240"  # 請替換為您要爬取的網頁 URL
+text_content = crawl_webpage(url)
+
+# 輸出獲取到的文字內容
+if text_content:
+    print("Text Content:")
+    print(text_content)

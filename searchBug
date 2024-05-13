@@ -1,6 +1,7 @@
 import re
 import requests
 from bs4 import BeautifulSoup
+import google_search_keyworld
 
 def crawl_webpage(url):
     # 發送 GET 請求並獲取響應
@@ -21,18 +22,6 @@ def crawl_webpage(url):
         # 排除特定元素或類別
         for elem in main_content.find_all(["nav", "footer", "sidebar","script","noscript"]):  # 假設您想排除的元素是 <nav>、<footer> 和側邊欄，請替換成您需要排除的元素
             elem.extract()
-       # 排除任何包含 "nav" 或 "banner" 的 class 名稱
-        pattern = re.compile(r'\b(nav|banner|menu)\b')  # 匹配單獨的 "nav" 或 "banner" 字詞
-        for elem in main_content.find_all(class_=pattern):
-            elem.extract()
-        
-        # # 找到所有的標籤
-        # all_tags = soup.find_all()
-        
-        # # 提取每個標籤的文字內容
-        # text_content = ""
-        # for tag in all_tags:
-        #     text_content += tag.get_text() + "\n"
         
         # 使用 get_text() 方法獲取所有文字內容，並使用 strip() 方法去除頭尾空白，再使用 splitlines() 方法分割成行
         lines = main_content.get_text().strip().splitlines()
@@ -46,11 +35,12 @@ def crawl_webpage(url):
         print("Failed to fetch webpage")
         return None
 
-# 使用示例
-url = "https://zhuanlan.zhihu.com/p/651272240"  # 請替換為您要爬取的網頁 URL
-text_content = crawl_webpage(url)
 
-# 輸出獲取到的文字內容
-if text_content:
-    print("Text Content:")
-    print(text_content)
+a=google_search_keyworld.search_google(google_search_keyworld.keyword)
+for i in range(len(a)):
+    url = a[i]  
+    text_content = crawl_webpage(url)
+    # 輸出獲取到的文字內容
+    if text_content:
+        print(f'WebPage{i+1}:')
+        print(text_content)

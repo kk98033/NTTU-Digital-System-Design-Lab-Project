@@ -154,7 +154,11 @@ class ChatBot:
         return "[告訴用戶:所有的資料來源皆已經輸出!]"
 
     def chat(self, input_text):
-        self.response = self.agent.chat(input_text)
+        # not streaming
+        # self.response = self.agent.chat(input_text)
+
+        # streaming response
+        self.response = self.agent.stream_chat(input_text)
         return self.response
 
 
@@ -169,4 +173,8 @@ if __name__ == "__main__":
             print("Chatbot has been reset.")
         else:
             response = bot.chat(user_input)
-            print("Agent:", response)
+            for token in response.response_gen:
+                print(token, end="", flush=True)
+            print()
+            # not streaming
+            # print("Agent:", response)

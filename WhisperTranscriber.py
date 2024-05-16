@@ -21,7 +21,7 @@ class WhisperTranscriber:
         # Make log-Mel spectrogram and move to the same device as the model
         mel = whisper.log_mel_spectrogram(audio).to(self.model.device)
 
-        if (language == 'zh'):
+        if language == 'zh':
             # 設定識別選項，包括指定語言為中文
             options = whisper.DecodingOptions(language=language)
         else:

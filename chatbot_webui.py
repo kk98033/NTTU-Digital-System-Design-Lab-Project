@@ -50,15 +50,29 @@ def send_message():
             st.markdown(f"<div style='text-align: left;'><i class='fa fa-robot icon'></i></div>", unsafe_allow_html=True)
 
         # 為了可以 stream response
-        bot_message_container.markdown(f"<div class='message bot'>{""}", unsafe_allow_html=True)
+        # bot_message_container.markdown(f"<div class='message bot'>{""}", unsafe_allow_html=True)
         for api_response in call_api(user_input):
-            response_text += f'{api_response}<br>'
+            # response_text += f'{api_response}<br>'
+            response_text += f'{api_response}\n'
             # 每次更新回應時更新容器內容
-            bot_message_container.markdown(f"<div class='message bot'>{response_text}</div>", unsafe_allow_html=True)
+            # bot_message_container.markdown(f"<div class='message bot'>{response_text}</div>", unsafe_allow_html=True)
+            bot_message_container.markdown(response_text)
 
         st.session_state.responses.append({"user": "bot", "text": response_text})
         
         user_message_container.empty()
+
+        
+
+def scroll_to_button():
+    st.markdown(
+            """
+            <script>
+            scrollToBottom();
+            </script>
+            """,
+            unsafe_allow_html=True
+        )
 
 def display_chat_history(message_display_area):
     """Displays the chat history in a specified area."""
@@ -70,7 +84,8 @@ def display_chat_history(message_display_area):
                 st.markdown(f"<div class='message user'>{message['text']}</div>", unsafe_allow_html=True)
             else:
                 st.markdown(f"<div style='text-align: left;'><i class='fa fa-robot icon'></i></div>", unsafe_allow_html=True)
-                st.markdown(f"<div class='message bot'>{message['text']}</div>", unsafe_allow_html=True)
+                # st.markdown(f"<div class='message bot'>{message['text']}</div>", unsafe_allow_html=True)
+                st.markdown(message['text'])
 # Title Container
 title_container = st.container()
 title_container.title('NTTU 原住民老師')
@@ -88,7 +103,19 @@ with input_container:
     user_input = st.text_input("Please enter your message:", key="user_input", on_change=send_message, placeholder="Type a message and press enter")
     if st.button("Send"):
         send_message()
+        scroll_to_button()
 
 # Add sidebar with image and text
 st.sidebar.image("llama_logo.png", use_column_width=True)
 st.sidebar.write("NTTU 原住民老師")
+
+st.markdown(
+    """
+    <script>
+    function scrollToBottom() {
+        window.scrollTo(0,document.body.scrollHeight);
+    }
+    </script>
+    """,
+    unsafe_allow_html=True
+)

@@ -30,10 +30,9 @@ def call_api(message):
     except requests.RequestException as e:
         yield f"API Error: {str(e)}"
 
-def send_message():
-    user_input = st.session_state.user_input  
+def send_message(user_input):
     if user_input:
-        st.session_state.user_input = ""  
+        # st.session_state.user_input = ""  
 
         # 避免重複輸出 
         if not st.session_state.responses:
@@ -63,6 +62,7 @@ def send_message():
         st.session_state.responses.append({"user": "bot", "text": response_text})
         
         user_message_container.empty()
+        bot_message_container.empty()
 
         
 
@@ -93,32 +93,29 @@ def display_chat_history(message_display_area):
 title_container = st.container()
 title_container.title('NTTU 原住民老師')
 
-# Main Chat Container
 chat_container = st.container()
-with chat_container:
-    display_chat_history(st.empty())
 user_message_container = st.empty()
 bot_message_container = st.empty()
 
+if user_input := st.chat_input("Please enter your message:", key="user_input"):
+    send_message(user_input)
+
+# Main Chat Container
+with chat_container:
+    display_chat_history(st.empty())
+
+
 # Input Container
-input_container = st.container()
-with input_container:
-    user_input = st.text_input("Please enter your message:", key="user_input", on_change=send_message, placeholder="Type a message and press enter")
-    if st.button("Send"):
-        send_message()
-        scroll_to_button()
+# input_container = st.container()
+# with input_container:
+    # user_input = st.text_input("Please enter your message:", key="user_input", on_change=send_message, placeholder="Type a message and press enter")
+    # if st.button("Send"):
+    #     send_message()
+    #     scroll_to_button()
 
 # Add sidebar with image and text
+
+
+
 st.sidebar.image("llama_logo.png", use_column_width=True)
 st.sidebar.write("NTTU 原住民老師")
-
-st.markdown(
-    """
-    <script>
-    function scrollToBottom() {
-        window.scrollTo(0,document.body.scrollHeight);
-    }
-    </script>
-    """,
-    unsafe_allow_html=True
-)

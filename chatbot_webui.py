@@ -119,3 +119,35 @@ with chat_container:
 
 st.sidebar.image("llama_logo.png", use_column_width=True)
 st.sidebar.write("NTTU 原住民老師")
+llm_model = st.sidebar.selectbox("Select Model", options=["llama3", "phi3", "openhermes", "llama2"])
+embeddings_model = st.sidebar.selectbox(
+    "Select Embeddings",
+    options=["nomic-embed-text", "llama3", "openhermes", "phi3"],
+    help="When you change the embeddings model, the documents will need to be added again.",
+)
+
+input_url = st.sidebar.text_input(
+            "Add URL to Knowledge Base", type="default"
+        )
+st.sidebar.markdown("""---""")
+
+alert = st.sidebar.info("Processing URLs...", icon="ℹ️")
+# if f"{input_url}_scraped" not in st.session_state:
+    # scraper = WebsiteReader(max_links=2, max_depth=1)
+    # web_documents: List[Document] = scraper.read(input_url)
+    # if web_documents:
+    #     rag_assistant.knowledge_base.load_documents(web_documents, upsert=True)
+    # else:
+st.sidebar.error("Could not read website")
+# input_url = st.sidebar.text_input(
+#             "Add URL to Knowledge Base", type="default", key=st.session_state["url_scrape_key"]
+#         )
+add_url_button = st.sidebar.button("Add URL")
+
+uploaded_file = st.sidebar.file_uploader(
+    "Add a PDF :page_facing_up:", type="pdf"
+)
+# uploaded_file = st.sidebar.file_uploader(
+#     "Add a PDF :page_facing_up:", type="pdf", key=st.session_state["file_uploader_key"]
+# )
+alert = st.sidebar.info("Processing PDF...", icon="🧠")

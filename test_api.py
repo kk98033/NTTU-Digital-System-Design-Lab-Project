@@ -1,15 +1,14 @@
 import requests
 
 def call_api(message):
-    url = 'http://localhost:6969/chat'
+    url = 'http://localhost:6969/normal_chat'
     data = {'message': message}
-    with requests.post(url, json=data, stream=True) as response:
-        if response.status_code == 200:
-            for line in response.iter_lines():
-                if line:
-                    print("API 回應：", line.decode('utf-8'))
-        else:
-            print("發生錯誤，狀態碼：", response.status_code)
+    response = requests.post(url, json=data)
+    if response.status_code == 200:
+        response_json = response.json()
+        print("API 回應：", response_json['response'])
+    else:
+        print("發生錯誤，狀態碼：", response.status_code)
 
 print("輸入 'exit' 來結束程序。")
 while True:

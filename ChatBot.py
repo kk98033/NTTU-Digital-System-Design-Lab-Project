@@ -154,11 +154,13 @@ class ChatBot:
         return "[告訴用戶:所有的資料來源皆已經輸出!]"
 
     def chat(self, input_text):
-        # not streaming
-        # self.response = self.agent.chat(input_text)
-
         # streaming response
         self.response = self.agent.stream_chat(input_text)
+        return self.response
+    
+    def normal_chat(self, input_text):
+        # not streaming
+        self.response = self.agent.chat(input_text)
         return self.response
 
 

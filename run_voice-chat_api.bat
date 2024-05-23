@@ -19,6 +19,8 @@ if exist ".\venv\" (
 
     echo 正在啟動 API...
     python .\NTTU-Digital-System-Design-Lab-Project\voice-chat_api.py
+
+    cd ..
 )
 
 echo 按任意鍵退出...

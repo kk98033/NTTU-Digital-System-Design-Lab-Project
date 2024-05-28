@@ -119,10 +119,8 @@ with chat_container:
 
 
 st.sidebar.image("llama_logo.png", use_column_width=True)
-st.sidebar.write("NTTU 原住民老師")
-st.sidebar.header('This is a header with a divider', divider='grey')
-st.sidebar.header('This is a header with a divider', divider='rainbow')
-llm_model = st.sidebar.selectbox("Select Model", options=["llama3", "phi3", "openhermes", "llama2"])
+st.sidebar.header('NTTU 原住民老師', divider='rainbow')
+llm_model = st.sidebar.selectbox("Select Model", options=["Breeze-7B-Instruct-v0_1", "llama3", "phi3", "openhermes", "llama2"])
 embeddings_model = st.sidebar.selectbox(
     "Select Embeddings",
     options=["nomic-embed-text", "llama3", "openhermes", "phi3"],
@@ -134,14 +132,14 @@ input_url = st.sidebar.text_input(
         )
 st.sidebar.markdown("""---""")
 
-alert = st.sidebar.info("Processing URLs...", icon="ℹ️")
+# alert = st.sidebar.info("Processing URLs...", icon="ℹ️")
 # if f"{input_url}_scraped" not in st.session_state:
     # scraper = WebsiteReader(max_links=2, max_depth=1)
     # web_documents: List[Document] = scraper.read(input_url)
     # if web_documents:
     #     rag_assistant.knowledge_base.load_documents(web_documents, upsert=True)
     # else:
-st.sidebar.error("Could not read website")
+# st.sidebar.error("Could no t read website")
 # input_url = st.sidebar.text_input(
 #             "Add URL to Knowledge Base", type="default", key=st.session_state["url_scrape_key"]
 #         )

@@ -30,9 +30,11 @@ class ChatBot:
         Settings.embed_model = HuggingFaceEmbedding(model_name="intfloat/multilingual-e5-large-instruct")
         Settings.llm = Ollama(model="llama3:instruct", request_timeout=60.0)
         # Settings.llm = Ollama(model="ycchen/breeze-7b-instruct-v1_0:latest", request_timeout=60.0)
+        # Settings.llm = Ollama(model="zephyr:7b", request_timeout=60.0)
+        # Settings.llm = Ollama(model="openhermes:v2.5", request_timeout=60.0)
 
     def load_dotenv_file(self):
-        load_dotenv()
+        load_dotenv()   
 
     def prepare_environment(self):
         nltk.download('averaged_perceptron_tagger')
@@ -174,9 +176,11 @@ if __name__ == "__main__":
             bot = ChatBot()
             print("Chatbot has been reset.")
         else:
+            # Streaming response
             response = bot.chat(user_input)
             for token in response.response_gen:
                 print(token, end="", flush=True)
             print()
+
             # not streaming
             # print("Agent:", response)

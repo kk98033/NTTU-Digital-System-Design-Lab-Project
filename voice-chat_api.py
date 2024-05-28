@@ -32,7 +32,7 @@ class ColoredFormatter(logging.Formatter):
     }
 
     def format(self, record):
-        log_color = self.COLORS.get(record.levelname, '\033[0m')  # 默認為無色
+        log_color = self.COLORS.get(record.levelname, '\033[0m')
         reset_color = '\033[0m'
         message = super().format(record)
         return f"{log_color}{message}{reset_color}"

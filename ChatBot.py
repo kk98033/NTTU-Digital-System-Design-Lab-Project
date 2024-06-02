@@ -1,9 +1,13 @@
 import os
 import json
+import requests
+from bs4 import BeautifulSoup
+import warnings
 
 from dotenv import load_dotenv
 import nltk
 import nest_asyncio
+from urllib3.exceptions import InsecureRequestWarning
 
 from llama_index.core import (
     VectorStoreIndex, StorageContext, 
@@ -17,6 +21,95 @@ from llama_index.core.query_engine import CitationQueryEngine, SubQuestionQueryE
 from llama_index.llms.ollama import Ollama
 from llama_index.core.agent import ReActAgent
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
+from llama_index.llms.openai import OpenAI
+from llama_index.core.tools import FunctionTool
+
+# TODO: 把 tool 獨立寫在另外一個檔案
+# load .env file
+load_dotenv()
+
+# get API key from .env file
+os.environ["google_search_api_key"] = os.getenv('google_search_api_key')
+
+# 忽略不安全的 SSL 警告
+warnings.filterwarnings("ignore", category=InsecureRequestWarning)
+
+def web_search(keyword: str) -> str:
+    """根據給定的關鍵字進行網頁搜尋並返回搜尋結果的主要文字內容。(keyword 只能輸入中文)"""
+    urls = get_search_url(keyword=keyword)
+    print(urls)
+    result = f'[根據以下文章內容，使用"**繁體中文**"整理有關於"{keyword}"的部分]:\n'
+    for i, url in enumerate(urls):
+        if not url.lower().endswith('.pdf'):
+            result += f'文章{i+1}:\n"""'
+            result += crawl_webpage(url) + '"""\n'
+    print(len(result))
+    return result
+
+web_search_tool = FunctionTool.from_defaults(fn=web_search)
+    
+def get_search_url(keyword):
+    url = f"https://www.googleapis.com/customsearch/v1?key={os.environ['google_search_api_key']}&cx=013036536707430787589:_pqjad5hr1a&q={keyword}&cr=countryTW&num=3"
+    response = requests.get(url)
+    if response.status_code == 200:
+        search_results = response.json()
+        links = [item['link'] for item in search_results.get('items', [])]
+        return links
+    else:
+        print("Error occurred while fetching search results")
+        return []
+
+def crawl_webpage(url):
+    try:
+        response = requests.get(url, verify=False)  # Disabling SSL verification
+        if response.status_code == 200:
+            soup = BeautifulSoup(response.content, 'html.parser')
+            main_content = soup.find("div", class_="main-content")
+            if not main_content:
+                main_content = soup
+
+            for elem in main_content.find_all(["nav", "footer", "sidebar", "script", "noscript"]):
+                elem.extract()
+
+            lines = main_content.get_text().strip().splitlines()
+            text_content = '\n'.join(line for line in lines if line.strip())
+            return text_content
+        else:
+            print("Failed to fetch webpage")
+            return ""
+    except requests.exceptions.RequestException as e:
+        print(f"An error occurred: {e}")
+        return ""
+
+# print(len(web_search("CEP49")))
+
+
+# a = google_search_keyword.search_google(google_search_keyword.keyword)
+# for i in range(len(a)):
+#     url = a[i]
+#     text_content = crawl_webpage(url)
+#     # 輸出獲取到的文字內容
+#     if text_content:
+#         print(f'WebPage{i+1}:')
+#         print(text_content)
+
+
+# api_key = ""
+
+# keyword = input("Please enter a keyword：")
+# search_results = search_google(keyword, api_key)
+
+# if search_results:
+#     print("Search results link：")
+#     for link in search_results:
+#         print(link)
+# else:
+#     print("No relevant search results found.")
+
+
+# search_results_array = search_results if search_results else []
+# print("Search results are stored in array:", search_results_array)
+
 
 class ChatBot:
     def __init__(self):
@@ -29,6 +122,8 @@ class ChatBot:
     def setup_settings(self):
         Settings.embed_model = HuggingFaceEmbedding(model_name="intfloat/multilingual-e5-large-instruct")
         Settings.llm = Ollama(model="llama3:instruct", request_timeout=60.0)
+        # Settings.llm = OpenAI(model="gpt-3.5-turbo-instruct")
+        # Settings.llm = Ollama(model="cwchang/llama3-taide-lx-8b-chat-alpha1", request_timeout=60.0)
         # Settings.llm = Ollama(model="ycchen/breeze-7b-instruct-v1_0:latest", request_timeout=60.0)
         # Settings.llm = Ollama(model="zephyr:7b", request_timeout=60.0)
         # Settings.llm = Ollama(model="openhermes:v2.5", request_timeout=60.0)
@@ -117,7 +212,7 @@ class ChatBot:
 
             show_RAG_sources_tool = FunctionTool.from_defaults(fn=self.show_RAG_sources)
 
-            tools = [nttu_citation_tool, citation_tool, show_RAG_sources_tool]
+            tools = [nttu_citation_tool, citation_tool, show_RAG_sources_tool, web_search_tool]
             agent = ReActAgent.from_tools(tools=tools, verbose=True, embed_model="local")
 
             # Load system prompts from file
@@ -177,10 +272,11 @@ if __name__ == "__main__":
             print("Chatbot has been reset.")
         else:
             # Streaming response
-            response = bot.chat(user_input)
-            for token in response.response_gen:
-                print(token, end="", flush=True)
-            print()
+            # response = bot.chat(user_input)
+            # for token in response.response_gen:
+            #     print(token, end="", flush=True)
+            # print()
 
             # not streaming
-            # print("Agent:", response)
+            response = bot.normal_chat(user_input)
+            print("Agent:", response)

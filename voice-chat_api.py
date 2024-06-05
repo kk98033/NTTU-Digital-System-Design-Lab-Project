@@ -1,16 +1,3 @@
-'''
-這個 Flask 應用程式主要功能是接受上傳的音訊文件，經過降噪處理後，轉錄成文本，然後調用 ChatBot 進行對話，最後將生成的回應轉換為音頻文件並回傳給用戶。
-
-主要流程如下：
-1. 接收上傳的音訊文件，驗證文件類型是否允許。
-2. 將文件儲存在指定的上傳文件夾中。
-3. 使用 Denoiser 類別對音訊文件進行降噪處理，並將結果儲存在另一個文件夾中。
-4. 使用 WhisperTranscriber 類別對降噪後的音訊文件進行轉錄，將語音轉換為文本。
-5. 調用 ChatBot 進行對話，獲得回應文本。
-6. 將 ChatBot 的回應文本轉換為音頻文件並儲存。
-7. 將音頻文件以附件形式回傳給用戶。
-'''
-
 from ChatBot import ChatBot
 from WhisperTranscriber import WhisperTranscriber
 from Denoiser import Denoiser
@@ -20,6 +7,7 @@ from requests_toolbelt.multipart.encoder import MultipartEncoder
 from werkzeug.utils import secure_filename
 import requests
 import logging
+import base64
 import os
 import re
 
@@ -62,56 +50,10 @@ def allowed_file(filename):
 
 def parse_custom_tag(response):
     pattern = r'<action>(\d+)</action>'
-    match = re.match(pattern, response)
+    match = re.search(pattern, response, re.DOTALL)
     if match:
         action_value = match.group(1)
-        return {"action": action_value}
-    else:
-        return {"action": -1}
-
-class ColoredFormatter(logging.Formatter):
-    COLORS = {
-        'DEBUG': '\033[94m',  # 藍色
-        'INFO': '\033[92m',   # 綠色
-        'WARNING': '\033[93m', # 黃色
-        'ERROR': '\033[91m',  # 紅色
-        'CRITICAL': '\033[1;91m', # 粗體紅色
-        'PURPLE': '\033[95m'  # 紫色
-    }
-
-    def format(self, record):
-        log_color = self.COLORS.get(record.levelname, '\033[0m')
-        reset_color = '\033[0m'
-        message = super().format(record)
-        return f"{log_color}{message}{reset_color}"
-
-app = Flask(__name__)
-app.config['UPLOAD_FOLDER'] = os.path.join(os.getcwd(), 'uploads')
-app.config['DENOSIED_FOLDER'] = os.path.join(os.getcwd(), 'denoised')
-app.config['OUTPUT_FOLDER'] = os.path.join(os.getcwd(), 'output')
-app.config['ALLOWED_EXTENSIONS'] = {'wav', 'mp3', 'ogg'}
-
-# 設置日誌記錄器
-handler = logging.StreamHandler()
-formatter = ColoredFormatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-handler.setFormatter(formatter)
-
-# 清除現有的所有處理器
-if app.logger.hasHandlers():
-    app.logger.handlers.clear()
-
-app.logger.addHandler(handler)
-app.logger.setLevel(logging.INFO)
-
-def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
-
-def parse_custom_tag(response):
-    pattern = r'<action>(\d+)</action>'
-    match = re.match(pattern, response)
-    if match:
-        action_value = match.group(1)
-        return {"action": action_value}
+        return {"action": int(action_value)}
     else:
         return {"action": -1}
 
@@ -154,10 +96,12 @@ def normal_chat():
 
             # 構建多部分表單數據響應
             with open(output_audio, 'rb') as audio_file:
+                audio_base64 = base64.b64encode(audio_file.read()).decode('utf-8')
+
                 encoder = MultipartEncoder(
                     fields={
                         'json': ('json', jsonify({'action': action}).get_data(as_text=True), 'application/json'),
-                        'file': ('output.ogg', audio_file, 'audio/ogg')
+                        'file': ('output.ogg', audio_base64, 'audio/ogg')
                     }
                 )
                 response = make_response(encoder.to_string())

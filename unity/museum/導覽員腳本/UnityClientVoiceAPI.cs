@@ -5,6 +5,11 @@ using System.IO;
 using UnityEngine.Networking;
 using System.Text;
 using System;
+using UnityEngine.XR;
+using UnityEngine.XR.Interaction.Toolkit;
+using UnityEngine.InputSystem;
+
+
 
 public class UnityClientVoiceAPI : MonoBehaviour
 {
@@ -16,6 +21,12 @@ public class UnityClientVoiceAPI : MonoBehaviour
     private string apiUrl = "http://127.0.0.1:6969/voice_chat";
 
     public TeacherActions teacherActions;
+    public Transform head;
+    public float spawnDistance = 2;
+    public GameObject menu;
+    public InputActionProperty startTalk;
+
+
 
     void Start()
     {
@@ -29,14 +40,21 @@ public class UnityClientVoiceAPI : MonoBehaviour
 
     private void ProcessRecordingInput()
     {
-        if (Input.GetKeyDown(KeyCode.K) && !isRecording)
+       
+        if (startTalk.action.WasPressedThisFrame() && !isRecording)
         {
             StartRecording();
+            menu.SetActive(!menu.activeSelf);
+            menu.transform.position = head.position + new Vector3(head.forward.x, 0, head.forward.z).normalized * spawnDistance;
         }
-        else if (Input.GetKeyUp(KeyCode.K) && isRecording)
+        else if (startTalk.action.WasReleasedThisFrame() && isRecording)
         {
             StartCoroutine(DelayStopRecording(1f)); // Delay stopping the recording by 1 second
+            menu.SetActive(!menu.activeSelf);
+            menu.transform.position = head.position + new Vector3(head.forward.x, 0, head.forward.z).normalized * spawnDistance;
         }
+        menu.transform.LookAt(new Vector3(head.position.x, menu.transform.position.y, head.position.z));
+        menu.transform.forward *= -1;
     }
 
     IEnumerator DelayStopRecording(float delay)

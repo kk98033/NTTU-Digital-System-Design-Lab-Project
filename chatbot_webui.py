@@ -120,7 +120,7 @@ with chat_container:
 
 st.sidebar.image("llama_logo.png", use_column_width=True)
 st.sidebar.header('NTTU 原住民老師', divider='rainbow')
-llm_model = st.sidebar.selectbox("Select Model", options=["Breeze-7B-Instruct-v0_1", "llama3", "phi3", "openhermes", "llama2"])
+llm_model = st.sidebar.selectbox("Select Model", options=["Breeze-7B-Instruct-v0_1", "llama3", "phi3", "gemma2:9b"])
 embeddings_model = st.sidebar.selectbox(
     "Select Embeddings",
     options=["nomic-embed-text", "llama3", "openhermes", "phi3"],
